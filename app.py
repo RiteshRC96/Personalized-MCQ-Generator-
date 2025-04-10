@@ -111,7 +111,7 @@ html, body {
 }
 </style>
 """, unsafe_allow_html=True)
-st.markdown("<div class='title'>QuizCrafter AI 📝 – Crafting Questions. Empowering Minds ✨</div>", unsafe_allow_html=True)
+st.markdown("<div class='title'>📝Crafting Questions. Empowering Minds ✨</div>", unsafe_allow_html=True)
 
 # =============================================================================
 # MCQ Generator Logic

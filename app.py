@@ -5,7 +5,7 @@ from langchain.schema import HumanMessage, SystemMessage
 from langchain.memory import ConversationBufferMemory
 
 # =============================================================================
-# Session State Initialization for MCQ Generator
+# Session State Initialization
 # =============================================================================
 if "memory" not in st.session_state:
     st.session_state.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -27,20 +27,18 @@ if "score" not in st.session_state:
     st.session_state.score = 0
 if "answers" not in st.session_state:
     st.session_state.answers = []
-if "selected_option" not in st.session_state:
-    st.session_state.selected_option = None
 
 # =============================================================================
-# Initialize Chat Model (MCQ Generation)
+# Initialize Chat Model
 # =============================================================================
 chat = ChatGroq(
     temperature=0.7,
     model_name="llama3-70b-8192",
-    groq_api_key="YOUR_GROQ_API_KEY"  # Replace with your actual key
+    groq_api_key="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"
 )
 
 # =============================================================================
-# LLM Query Function for MCQ Generation
+# Query Function
 # =============================================================================
 def query_llama3(user_query):
     topic = st.session_state.topic
@@ -53,10 +51,12 @@ System Prompt: You are an expert educational assessment generator specialized in
 • Output the MCQs in the following exact format:
   [Question, Option A, Option B, Option C, Option D, Correct Answer]
 • Provide the result as a valid Python list of such lists — no extra text, no explanation.
+• Each inner list must contain exactly 6 elements as described above.
 """
+    past_chat = st.session_state.memory.load_memory_variables({}).get("chat_history", [])
     messages = [
         SystemMessage(content=system_prompt),
-        HumanMessage(content=user_query)
+        HumanMessage(content=f"Past Chat: {past_chat}\n\nUser: {user_query}")
     ]
     try:
         response = chat.invoke(messages)
@@ -66,25 +66,28 @@ System Prompt: You are an expert educational assessment generator specialized in
         return f"⚠️ Error: {str(e)}"
 
 # =============================================================================
-# Page Config and Styling
+# Page Style
 # =============================================================================
-st.set_page_config(page_title="🧠 QuizCrafter AI", page_icon="O.O", layout="centered")
+st.set_page_config(page_title="🧠QuizCrafter AI", page_icon="📝", layout="centered")
 st.markdown("""
 <style>
+html, body {
+    background-color: #0c0c0c;
+    color: #ffffff;
+}
 .title {
     text-align: center;
     font-size: 3em;
     font-weight: 700;
-    color: #2c3e50;
+    color: #3498db;
     margin-top: 20px;
     margin-bottom: 30px;
 }
 .question-box {
-    background-color: #000000;
+    background-color: #1a1a1a;
     padding: 25px;
     border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 .stButton > button {
     margin: 8px 4px;
@@ -92,7 +95,6 @@ st.markdown("""
     border-radius: 10px;
     padding: 12px;
     font-weight: bold;
-    transition: 0.3s ease;
     background-color: #3498db;
     color: white;
 }
@@ -102,32 +104,30 @@ st.markdown("""
 .score-box {
     text-align: center;
     background-color: #ecf0f1;
+    color: #2c3e50;
     padding: 20px;
     border-radius: 10px;
     font-size: 1.2em;
-    color: #2c3e50;
 }
 </style>
 """, unsafe_allow_html=True)
-st.markdown("<div class='title'>QuizCrafter AI ✍️ – Crafting Questions. Empowering Minds ✨</div>", unsafe_allow_html=True)
+st.markdown("<div class='title'>QuizCrafter AI 📝 – Crafting Questions. Empowering Minds ✨</div>", unsafe_allow_html=True)
 
 # =============================================================================
 # MCQ Generator Logic
 # =============================================================================
 def render_mcq_generator():
-    # Initial topic input
     if st.session_state.current_question == 0 and not st.session_state.questions:
-        st.session_state.topic = st.text_input("🎯 Enter a Topic to Generate MCQs:")
+        st.session_state.topic = st.text_input("🎯 Enter a Topic to Generate MCQs:", key="topic_input")
         if st.button("🚀 Generate MCQs"):
             st.session_state.generate_button = True
 
-    # Generate MCQs
     if st.session_state.once and st.session_state.topic and st.session_state.generate_button:
         response_content = query_llama3(st.session_state.topic)
         try:
             st.session_state.questions = ast.literal_eval(response_content)
         except Exception as e:
-            st.error("❌ Error parsing MCQ response: " + str(e))
+            st.error("Error parsing MCQ response: " + str(e))
             st.stop()
         st.session_state.total = len(st.session_state.questions)
         st.session_state.once = False
@@ -136,7 +136,6 @@ def render_mcq_generator():
         st.session_state.score = 0
         st.session_state.answers = []
 
-    # Display current question
     if st.session_state.questions and not st.session_state.done:
         idx = st.session_state.current_question
         q_data = st.session_state.questions[idx]
@@ -145,22 +144,23 @@ def render_mcq_generator():
         correct_answer = q_data[-1]
 
         st.markdown(f"<div class='question-box'><strong>Q{idx+1}:</strong> {question_text}</div>", unsafe_allow_html=True)
-        st.session_state.selected_option = st.radio("Choose an answer:", options, key=f"option_{idx}")
+
+        selected = st.radio("Choose an answer:", options, key=f"option_{idx}")
 
         if st.button("Next"):
-            chosen = st.session_state.selected_option
-            st.session_state.answers.append(chosen)
-            if chosen == correct_answer:
-                st.session_state.score += 1
-            if st.session_state.current_question < st.session_state.total - 1:
-                st.session_state.current_question += 1
-                st.session_state.selected_option = None
-                st.rerun()
+            if selected:
+                st.session_state.answers.append(selected)
+                if selected == correct_answer:
+                    st.session_state.score += 1
+                if st.session_state.current_question < st.session_state.total - 1:
+                    st.session_state.current_question += 1
+                    st.rerun()
+                else:
+                    st.session_state.done = True
+                    st.rerun()
             else:
-                st.session_state.done = True
-                st.rerun()
+                st.warning("⚠️ Please select an answer before moving on.")
 
-    # Final Score
     if st.session_state.done:
         st.markdown(f"""
         <div class='score-box'>
@@ -168,6 +168,7 @@ def render_mcq_generator():
             🎉 Your score is <strong>{st.session_state.score}</strong> out of <strong>{st.session_state.total}</strong>.
         </div>
         """, unsafe_allow_html=True)
+
         if st.button("🔄 Start New Test"):
             for key in list(st.session_state.keys()):
                 del st.session_state[key]

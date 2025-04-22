@@ -141,7 +141,7 @@ def render_mcq_generator():
         q_data = st.session_state.questions[idx]
         question_text = q_data[0]
         options = q_data[1:-1]
-        correct_answer = q_data[-1]
+        correct_answer_letter = q_data[-1].strip().upper()
 
         st.markdown(f"<div class='question-box'><strong>Q{idx+1}:</strong> {question_text}</div>", unsafe_allow_html=True)
 
@@ -150,7 +150,9 @@ def render_mcq_generator():
         if st.button("Next"):
             if selected:
                 st.session_state.answers.append(selected)
-                if selected == correct_answer:
+                letter_to_index = {"A": 0, "B": 1, "C": 2, "D": 3}
+                correct_index = letter_to_index.get(correct_answer_letter, -1)
+                if correct_index != -1 and selected.strip().lower() == options[correct_index].strip().lower():
                     st.session_state.score += 1
                 if st.session_state.current_question < st.session_state.total - 1:
                     st.session_state.current_question += 1

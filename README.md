@@ -28,6 +28,10 @@ Powered by **LangChain**, **Groq’s LLaMA 3 (70B)** model, and an intuitive Str
 | **Groq API**        | Backend LLM provider (LLaMA 3)    |
 
 ---
+### 🖼️ Demo
+
+![MCQ Generator Screenshot](./MCQ-gererator-Demo1.png)
+![MCQ Generator Screenshot](./MCQ-gererator-Demo2.png)
 
 ## 🛠️ Installation
 
@@ -37,8 +41,6 @@ Powered by **LangChain**, **Groq’s LLaMA 3 (70B)** model, and an intuitive Str
 git clone https://github.com/your-username/quizcrafter-ai.git
 cd quizcrafter-ai
 
-## 🖼️ Demo
 
-![MCQ Generator Screenshot](./MCQ-gererator-Demo1.png)
-![MCQ Generator Screenshot](./MCQ-gererator-Demo2.png)
+
 

@@ -39,5 +39,6 @@ cd quizcrafter-ai
 
 ## 🖼️ Demo
 
-![MCQ Generator Screenshot](./mcq-generator-demo.png)
+![MCQ Generator Screenshot](./MCQ-gererator-Demo1.png)
+![MCQ Generator Screenshot](./MCQ-gererator-Demo2.png)
 

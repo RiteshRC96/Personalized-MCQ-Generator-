@@ -36,3 +36,8 @@ Powered by **LangChain**, **Groq’s LLaMA 3 (70B)** model, and an intuitive Str
 ```bash
 git clone https://github.com/your-username/quizcrafter-ai.git
 cd quizcrafter-ai
+
+## 🖼️ Demo
+
+![MCQ Generator Screenshot](./mcq-generator-demo.png)
+
